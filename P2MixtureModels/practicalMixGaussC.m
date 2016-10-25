@@ -116,26 +116,53 @@ for (cIter = 1:nIter)
         %TO DO (g): fill in column of 'hidden' - calculate posterior probability that
         %this data point came from each of the Gaussians
         %replace this:
-        postHidden(:,cData) = 1/k;
+        normalisation = 0;
+        responsibility = zeros(mixGaussEst.d,1);
+        for (z = 1:k)
+            this_norm = getGaussProb(data(:,cData),mixGaussEst.mean(:,z), ...
+                mixGaussEst.cov(:,:,z)) * mixGaussEst.weight(z);
+            normalisation = normalisation + this_norm;
+        end
+        
+        for (z = 1:k)
+            prior = mixGaussEst.weight(z);
+            likelihood = getGaussProb(data(:,cData),mixGaussEst.mean(:,z), ...
+                mixGaussEst.cov(:,:,z));
+            responsibility(z) = prior * likelihood / normalisation;
+        end
+        
+        postHidden(:,cData) = responsibility;
    end;
    
    %Maximization Step
    
    %for each constituent Gaussian
    for (cGauss = 1:k) 
+        this_resp = postHidden(cGauss,:);
         %TO DO (h):  Update weighting parameters mixGauss.weight based on the total
         %posterior probability associated with each Gaussian. Replace this:
-        mixGaussEst.weight(cGauss) = mixGaussEst.weight(cGauss); 
+        sum_r = sum(this_resp);
+        mixGaussEst.weight(cGauss) = sum_r / sum(postHidden(:));
    
         %TO DO (i):  Update mean parameters mixGauss.mean by weighted average
         %where weights are given by posterior probability associated with
         %Gaussian.  Replace this:
-        mixGaussEst.mean(cGauss) = mixGaussEst.mean(cGauss);
+        postHidden_stacked = repmat(this_resp, mixGaussEst.d, 1);
+        sum_rx_mat = postHidden_stacked .* data ;
+        sum_rx = sum(sum_rx_mat,2);
+        new_mean = sum_rx / sum_r;
+        mixGaussEst.mean(:,cGauss) = new_mean;
         
         %TO DO (j):  Update covarance parameter based on weighted average of
         %square distance from update mean, where weights are given by
         %posterior probability associated with Gaussian
-        mixGaussEst.cov(:,:,cGauss) = mixGaussEst.cov(:,:,cGauss);
+        new_cov = zeros(mixGaussEst.d,mixGaussEst.d);
+        for (i = 1:nData)
+            meandiff = data(:,i) - new_mean;
+            new_cov = new_cov + this_resp(i) * (meandiff * meandiff') ...
+                / sum_r;
+        end
+        mixGaussEst.cov(:,:,cGauss) = new_cov;
    end;
    
    %draw the new solution
