@@ -169,9 +169,9 @@ for(cData = 1:nData)
     %TO DO - calculate likelihood of this data point under mixture of
     %Gaussians model. Replace this
     like = 0;
-    for (k = 1:mixGaussEst.k);
-        this_weight = mixGaussEst.weight(k);
-        this_x = data(:,cData);
+    for (k = 1:mixGaussEst.k)
+        this_weight = mixGaussEst.weight(k)
+        this_x = data(:,cData)
         this_mean = mixGaussEst.mean(:,k);
         this_cov = mixGaussEst.cov(:,:,k);
         this_like = this_weight * getGaussProb(this_x,this_mean,this_cov);
@@ -179,7 +179,7 @@ for(cData = 1:nData)
     end
     
     %add to total log like
-    logLike = logLike+log(like);
+    logLike = logLike+log(like);        
 end;
 
 
