@@ -13,7 +13,7 @@ close all
 % generate some data points from a normal distribution
 mu = 1; % mean
 sigma = 2; %standard deviation = sqrt(variance)
-N = 40; % number of datapoints
+N = 20; % number of datapoints
 X = mu + sigma.*randn(N,1)
  
 %% ML Parameter Estimation of normal
@@ -21,15 +21,11 @@ X = mu + sigma.*randn(N,1)
 % distribution and then insert the equations here.
 % Note: For today, it's safe to assume that the data points were generated
 % independently of each other.
-muML = 1/N * sum(X) 
+mu_vector = repmat(mu,N,1);
+meandiffs_squared = (X - mu_vector).^2;
 
-meandiffsum = 0;
-for i = 1:N
-    meandiffsum = meandiffsum + (X(i) - muML)^2;
-end
-
-  % So put your answer here in place of zero.
-sigmaML = sqrt(1/N * meandiffsum) % So put your answer here in place of zero.
+muML = 1/N * sum(X)   % So put your answer here in place of zero.
+sigmaML = 1/N * sum(meandiffs_squared) % So put your answer here in place of zero.
  
 % Plotting univariate normal
 % normalizing histograms - assuming bins are evenly sized
@@ -62,7 +58,7 @@ muRange = [mu-offSet : 0.01 : mu+offSet];
 lfun = zeros(length(sigmaRange), length(muRange));
 llfun = zeros(length(sigmaRange), length(muRange));
 % max_llfun_params
-top_llike = -100000000;
+top_llike = -0;
 mle_mean = 0;
 mle_sigma = 0;
 
@@ -71,7 +67,7 @@ for s=1:length(sigmaRange)
         lfun(s,m) = normal( X, sigmaRange(s), muRange(m) );
         lfun(s,m);
         llfun(s,m) = logNormal( X, sigmaRange(s), muRange(m) );
-        llfun(s,m);
+        llfun(s,m)
         if llfun(s,m) > top_llike
             mle_mean = muRange(m);
             mle_sigma = sigmaRange(s);

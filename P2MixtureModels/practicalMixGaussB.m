@@ -71,7 +71,7 @@ for (cData =1:nData)
     h = sampleFromDiscrete(mixGauss.weight);
     %draw a sample from the appropriate Gaussian distribution
     %TO DO (d)- replace this
-    data(:,cData) = randn*mixGauss.cov(1,1,h) + mixGauss.mean(h);
+    data(:,cData) = randn*sqrt(mixGauss.cov(1,1,h)) + mixGauss.mean(h);
     
     % BOX-MULLER METHOD FOR GAUSSIAN SAMPLING
     % Generate pairs of complex numbers with magnitude less than one.

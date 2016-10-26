@@ -5,4 +5,12 @@ function res = logNormal( X, sigma, mu )
 % normal().
 
 % TODO fill out this function
-res = 0;
+nData = length(X);
+constants = -nData/2 * (log(2*pi) + log(sigma^2));
+
+summed = 0;
+for i =1:nData
+    summed = summed - (1/(2*sigma^2)) * (X(i) - mu)^2;
+end
+
+res = constants + summed;
