@@ -40,18 +40,17 @@ xTransform = nonLinearTransform(x);
 %For every x, the model predicts a normal distribution over w
 
 x2 = -3:0.01:3;
-[nDim2, nData2] = size(x2);
 x2Transform = nonLinearTransform(x2);
 % Compute the mean and variance of the prediction for each element of
 % x2.
 phi_vector = vertcat(offsetEst, slopeEst);
 
 %Concat ones atop the x2Transform data.
-ones_to_concat = ones(1,nData2);
-x2Transform = vertcat(ones_to_concat,x2Transform);
+ones_to_concat = ones(1,nData);
+x2Transform = vertcat(ones_to_concat,
 
 predMean = phi_vector' * x2Transform;
-predVar = repmat(noiseEst,1,nData2);
+predVar = noiseEst;
 
 %compute the pixel colours for the image - one Gaussian in each column
 wFig = -1.5:0.01:1.5;
