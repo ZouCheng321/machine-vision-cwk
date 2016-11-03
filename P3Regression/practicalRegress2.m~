@@ -101,9 +101,9 @@ end
 % TO DO Compute the mean and variance of the prediction for each element of
 % x2.  Replace this:
 for (cX = 1:size(xStar,2))
-    this_xStar = xStar(:,cX);
-    predMean(cX) = (1/sigmaSq) * this_xStar' * inv(A) * x * w;
-    predVar(cX) = this_xStar' * inv(A) * this_xStar + sigmaSq;
+    
+    predMean(cX) = 1;
+    predVar(cX) = 0.05;
 end;
 
 % checking predMean and predVar are of the correct dimensions
