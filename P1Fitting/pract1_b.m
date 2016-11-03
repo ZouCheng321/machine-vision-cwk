@@ -32,10 +32,18 @@ delta = 0;
 % TODO 1 - On paper derive the MAP parameter estimates for the normal
 % distribution using the normal inverse gamma prior and then insert the
 % equations below
-muML = 0;
-sigmaML = 0;
-muMAP = 0;
-sigmaMAP = 0;
+
+
+muML = 1/N * sum(X) 
+
+meandiffsum = 0;
+for i = 1:N
+    meandiffsum = meandiffsum + (X(i) - muML)^2;
+end
+
+sigmaML = sqrt(1/N * meandiffsum)
+muMAP = muML * normalInvGamma(alpha,beta,gamma,delta,muML,sigmaML);
+sigmaMAP = sigmaML *  
  
 % TODO remove this break when you have completeed the first section
 break
