@@ -154,7 +154,8 @@ h21 = h12;
 h22 = 200;
 
 
-hessian = [h11, h12; h21, h22];
+
+hessian = eye(2,2);
 
 if ~(size(hessian, 1) == 2 && size(hessian, 2) == 2)
     error('hessian should be a 2 x 2 matrix');
