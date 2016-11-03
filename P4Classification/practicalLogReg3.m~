@@ -139,18 +139,16 @@ L = -sum(L);
 function deriv= NegLogProbDeriv(phi,x,w)
 %TO DO - compute this derivative.
 %replace this.
-[nDim, nData] = size(x);
 
 deriv = zeros(3,1);
 
 for i = 1:nData
     Cx = x(:,i);
-    Cw = w(i);
+    Cw = w(:,i);
     
     a = phi' * Cx;
-    sig_a = 1 / (1 + exp(- phi' * Cx));
     
-    deriv = deriv + (sig_a - Cw) * Cx;
+    
 end
 
 if ~(size(deriv, 1) == 3 && size(deriv, 2) == 1)
@@ -163,18 +161,7 @@ function hessian= NegLogProbHessian(phi,x,w)
 
 %TO DO - compute this matrix.
 %Replace this:
-[nDim, nData] = size(x);
-hessian = zeros(3,3);
-
-for i = 1:nData
-    Cx = x(:,i);
-    Cw = w(i);
-    
-    a = phi' * Cx;
-    sig_a = 1 / (1 + exp(- phi' * Cx));
-    
-    hessian = hessian + sig_a*(1-sig_a) * Cx * Cx';
-end
+hessian = eye(3,3);
 
 if ~(size(hessian, 1) == 3 && size(hessian, 2) == 3)
     error('hessian should be a 3 x 3 matrix');
