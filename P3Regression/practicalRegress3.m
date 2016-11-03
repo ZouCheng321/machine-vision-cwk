@@ -122,7 +122,7 @@ nData= size(x,2);
 x2 = zeros(6,nData);
 %For each data points
 for (cData = 1:nData)
-    thisX = x(:,cData)
+    thisX = x(:,cData);
     %TO DO: perform non-linear transformation on thisX:
     %To do this evaluate this X against the 6 RBF functions in Figure 8.6b 
     %They are 6 Gaussians with means

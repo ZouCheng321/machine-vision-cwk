@@ -61,8 +61,6 @@ end;
 % different initializations.
 
 
-
-
 %==========================================================================
 
 %main line search function
@@ -75,25 +73,18 @@ while((d-a)>tol)
     fprintf('Current Search Region is %6.6f to %6.6f\n',a,d);
     %TO DO:  calculate intermediate positions b and c, 1/3 and 2/3 of the way 
     % through interval (between a and d), respectively
-    b = a + (d-a)*(1/3);
-    c = a + (d-a)*(2/3);
+    b = a + (a-d)*(1/3);
+    c = a + (a-d)*(2/3);
     
     %replace this
     
     
     
     %TO DO evaluate function at points b and c
-    fb = optFunction(b);
-    fc = optFunction(c);
+    fb 
     
     
     %TO DO:  update point a or d depending on the values of those evaluations
-    
-    if (fb < fc)
-        d = c;
-    elseif (fb > fc)
-        a = b;
-    end
     
 end;
 
