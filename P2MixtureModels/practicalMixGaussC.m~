@@ -147,8 +147,8 @@ for (cIter = 1:nIter)
         %TO DO (i):  Update mean parameters mixGauss.mean by weighted average
         %where weights are given by posterior probability associated with
         %Gaussian.  Replace this:
-        postHidden_stacked = repmat(this_resp, mixGaussEst.d, 1);
-        sum_rx_mat = postHidden_stacked .* data;
+        postHidden_stacked = repmat(this_resp, mixGaussEst.d, 1)
+        sum_rx_mat = postHidden_stacked .* data 
         sum_rx = sum(sum_rx_mat,2);
         new_mean = sum_rx / sum_r;
         mixGaussEst.mean(:,cGauss) = new_mean;
@@ -157,7 +157,7 @@ for (cIter = 1:nIter)
         %square distance from update mean, where weights are given by
         %posterior probability associated with Gaussian
         new_cov = zeros(mixGaussEst.d,mixGaussEst.d);
-        for (i = 1:nData)
+t        for (i = 1:nData)
             meandiff = data(:,i) - new_mean;
             new_cov = new_cov + this_resp(i) * (meandiff * meandiff') ...
                 / sum_r;

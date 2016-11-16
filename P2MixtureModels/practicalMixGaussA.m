@@ -84,8 +84,7 @@ subplot(1,3,3); imagesc(posteriorSkin, clims); colormap(gray); axis off; axis im
 %==========================================================================
 %==========================================================================
 
-%the goal of this routine is to evaluate a Gaussian likleihood
-function like = calcGaussianProb(data,gaussMean,gaussCov)
+%the goal of this routine is to evaluate a Gaussian likleihoodfunction like = calcGaussianProb(data,gaussMean,gaussCov)
 
 [nDim nData] = size(data);
 
@@ -120,20 +119,18 @@ end
 function [meanData covData] = fitGaussianModel(data);
 
 % Looks like this is how one assigns two variables.
-[nDim nData] = size(data)
+[nDim nData] = size(data);
 
 %TO DO (a): replace this
-meanData = randn(nDim,1);
-covData = eye(nDim);
 
 %calculate mean of data.  You can do this using the MATLAB command 'mean'
-meanData = [mean(data(1)) mean(data(2)) mean(data(3))]'
+meanData = mean(data,2);
 
 %calculate covariance of data.  You should do this yourself to ensure you
 %understand how.  Check you have the right answer by comparing with the
 %matlab command 'cov'.
-covData = zeros(3,3);
-for m = 1:3
+covData = zeros(nDim,nDim);
+for m = 1:nDim
     m_data = data(m,:);
     for n = 1:3
         n_data = data(n,:);
@@ -143,6 +140,7 @@ for m = 1:3
         covData(m,n) = mn_cov;
     end
 end
+
 
 
 
