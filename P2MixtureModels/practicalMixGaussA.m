@@ -84,7 +84,8 @@ subplot(1,3,3); imagesc(posteriorSkin, clims); colormap(gray); axis off; axis im
 %==========================================================================
 %==========================================================================
 
-%the goal of this routine is to evaluate a Gaussian likleihoodfunction like = calcGaussianProb(data,gaussMean,gaussCov)
+%the goal of this routine is to evaluate a Gaussian likleihood
+function like = calcGaussianProb(data,gaussMean,gaussCov)
 
 [nDim nData] = size(data);
 
