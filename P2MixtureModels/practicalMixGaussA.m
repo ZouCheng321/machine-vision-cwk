@@ -36,6 +36,8 @@ drawnow;
 %load in training data - contains two variables each of size 3 x 10000
 %Each column contains RGB values from one pixel in training data
 load('RGBSkinNonSkin','RGBSkin','RGBNonSkin');
+whos RGBSkin
+whos RGBNonSkin
 
 
 %fit Gaussian model for skin data
