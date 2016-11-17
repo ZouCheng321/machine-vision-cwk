@@ -1,6 +1,9 @@
 function r=appleClassifier
 
-% LOAD IN TRAINING IMAGES
+% SETUP PHASE
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set up apple training, training GT, test and test GT images
+% as filepath strings sorted within cells.
 
 if( ~exist('apples', 'dir') || ~exist('testApples', 'dir') )
     display('Please change current directory to the parent folder of both apples/ and testApples/');
@@ -17,7 +20,16 @@ IapplesMasks{1} = 'apples/Apples_by_kightp_Pat_Knight_flickr.png';
 IapplesMasks{2} = 'apples/ApplesAndPears_by_srqpix_ClydeRobinson.png';
 IapplesMasks{3} = 'apples/bobbing-for-apples.png';
 
+ItestApples = cell(3,1);
+ItestApples{1} = 'testApples/Apples_by_MSR_MikeRyan_flickr.jpg';
+ItestApples{2} = 'testApples/Bbr98ad4z0A-ctgXo3gdwu8-original.jpg';
+ItestApples{3} = 'testApples/audioworm-QKUJj2wmxuI-original.jpg';
+
+ItestApplesMasks = cell(1,1);
+ItestApplesMasks{1} = 'testApples/Bbr98ad4z0A-ctgXo3gdwu8-original.png';
+
 % TRAINING PHASE
+%%%%%%%%%%%%%%%%
 % Get RGB values for all training images, and corresponding true
 % classifications. Fit the apple RGB values to one 3D Gaussian,
 % and fit the non-apple values to another.
@@ -40,58 +52,81 @@ for iImage = 1:size(Iapples)
     % Permute into a suitable form, as 'reshape' works column-wise.
     curI = permute(curI,[3,2,1]);
     curI = reshape(curI,3,[]);
-    whos curI
 
     % Reshape 2D logical GT mask into a 1xn array.
     % We want read row-wise so transpose curImask before reshape.
     % (as reshape works column-wise).
     apple_indices = reshape(curImask,1,[]);
-    notapple_indices = logical( ones(1,size(apple_indices)) ...
-        - apple_indices;
-    whos apple_indices
-    whos nonapple_indices
+    nonapple_indices = logical( ones(1,length(apple_indices)) ...
+        - apple_indices );
+    
+    this_appleRGB = curI(:,apple_indices);
+    this_nonappleRGB = curI(:,nonapple_indices);
+    
+    RGBApple = horzcat(RGBApple,this_appleRGB);
+    RGBNonApple = horzcat(RGBNonApple,this_nonappleRGB);
+
 end
 
-%fit Gaussian model for skin data
-%TO DO - fill in this routine (it's below, at the bottom of this file)
-%COMPLETE
-[meanSkin covSkin] = fitGaussianModel(RGBSkin);
+% FIT individual Gaussians for the binary classifications
 
-%fit Gaussian model for non-skin data
-%TO DO - fill in this routine (below)
-[meanNonSkin covNonSkin] = fitGaussianModel(RGBNonSkin);
+[meanApple covApple] = fitGaussianModel(RGBApple);
+[meanNonApple covNonApple] = fitGaussianModel(RGBNonApple);
 
-%let's define priors for whether the pixel is skin or non skin
-priorSkin = 0.3;
-priorNonSkin = 0.7;
+% PRIORS for apple and non-apple.
+priorApple = 0.3;
+priorNonApple = 0.7;
 
-%now run through the pixels in the image and classify them as being skin or
-%non skin - we will fill in the posterior
-[imY imX imZ] = size(im);
+% TEST PHASE
+%%%%%%%%%%%%%%%%%%%
 
-posteriorSkin = zeros(imY,imX);
-for (cY = 1:imY); 
-    fprintf('Processing Row %d\n',cY);     
-    for (cX = 1:imX);          
-        %extract this pixel data
-        thisPixelData = squeeze(double(im(cY,cX,:)));
-        %calculate likelihood of this data given skin model
-        %TO DO - fill in this routine (below)
-        likeSkin = calcGaussianProb(thisPixelData,meanSkin,covSkin);
-        %calculate likelihood of this data given non skin model
-        likeNonSkin = calcGaussianProb(thisPixelData,meanNonSkin,covNonSkin);
-        %TO DO (c):  calculate posterior probability from likelihoods and 
-        %priors using BAYES rule. Replace this: 
-        posteriorSkin(cY,cX) = (likeSkin * priorSkin) / ...
-            (likeSkin * priorSkin + likeNonSkin * priorNonSkin);
+for iImage = 2:size(ItestApples)
+    break %%% REMOVE FOR TESTING
+
+    % Load in test image.
+    im = imread(ItestApples{iImage});
+    % Display test image.
+    figure; set(gcf,'Color',[1 1 1]);
+    subplot(1,2,1); imagesc(im); axis off; axis image;
+    drawnow;
+
+    % Put into [0,1] RGB form.
+    im = double(im) / 255;
+
+
+
+    %now run through the pixels in the image and classify them as being skin or
+    %non skin - we will fill in the posterior
+    [imY imX imZ] = size(im);
+
+    posteriorApple = zeros(imY,imX);
+    for (cY = 1:imY);    
+        for (cX = 1:imX);          
+            %extract this pixel data
+            thisPixelData = squeeze(double(im(cY,cX,:)));
+            %calculate likelihood of this data given apple model
+            likeApple = calcGaussianProb(thisPixelData,meanApple,covApple);
+            %calculate likelihood of this data given non apple model
+            likeNonApple = calcGaussianProb(thisPixelData,meanNonApple,covNonApple);
+            %TO DO (c):  calculate posterior probability from likelihoods and 
+            %priors using BAYES rule. Replace this: 
+            posteriorApple(cY,cX) = (likeApple * priorApple) / ...
+                (likeApple * priorApple + likeNonApple * priorNonApple);
+        end;
     end;
-end;
 
-%draw skin posterior
-clims = [0, 1];
-subplot(1,3,3); imagesc(posteriorSkin, clims); colormap(gray); axis off; axis image;
-% set(gca, 'clim', [0, 1]);
+    %draw apple posterior
+    subplot(1,2,2); imagesc(posteriorApple); colormap(gray); axis off; axis image;
+    % set(gca, 'clim', [0, 1]);
+end
 
+% ROC ANALYSIS
+%%%%%%%%%%%%%
+
+curImask = imread(  IapplesMasks{2}   );
+    % These mask-images are often 3-channel, and contain grayscale values. We
+    % would prefer 1-channel and just binary:
+    Imask = Imask(:,:,2) > 128;  % Picked green-channel arbitrarily.
 
 %==========================================================================
 %==========================================================================
@@ -134,7 +169,6 @@ function [meanData covData] = fitGaussianModel(data);
 % Looks like this is how one assigns two variables.
 [nDim nData] = size(data);
 
-%TO DO (a): replace this
 
 %calculate mean of data.  You can do this using the MATLAB command 'mean'
 meanData = mean(data,2);
@@ -145,7 +179,7 @@ meanData = mean(data,2);
 covData = zeros(nDim,nDim);
 for m = 1:nDim
     m_data = data(m,:);
-    for n = 1:3
+    for n = 1:nDim
         n_data = data(n,:);
         exy = mean(m_data .* n_data);
         exey = mean(m_data) * mean(n_data);
