@@ -81,7 +81,7 @@ priorNonApple = 0.7;
 %%%%%%%%%%%%%%%%%%%
 
 for iImage = 1:size(ItestApples)
-    %%% REMOVE FOR TESTING
+    break %%% REMOVE FOR TESTING
 
     % Load in test image.
     im = imread(ItestApples{iImage});
@@ -124,11 +124,37 @@ end
 %%%%%%%%%%%%%
 
 % Read in the image and GT mask for apple-and-orange test image.
-Im = double(imread(  ItestApples{2}   )) / 255;
+im = double(imread(  ItestApples{2}   )) / 255;
 
 Imask = imread(  ItestApplesMasks{1}   );
 Imask = Imask(:,:,2) > 128;  % Picked green-channel arbitrarily.
 
+% Reshape GT matrix into 1xn array.
+apple_indices = reshape(Imask',1,[]);
+whos apple_indices
+
+% Size dimensions of Im.
+[imY imX imZ] = size(im);
+
+posteriorApple = zeros(1,length(im));
+count = 1;
+for (cY = 1:imY);    
+    for (cX = 1:imX);          
+        %extract this pixel data
+        thisPixelData = squeeze(double(im(cY,cX,:)));
+        %calculate likelihood of this data given apple model
+        likeApple = calcGaussianProb(thisPixelData,meanApple,covApple);
+        %calculate likelihood of this data given non apple model
+        likeNonApple = calcGaussianProb(thisPixelData,meanNonApple,covNonApple);
+        thisPosterior = (likeApple * priorApple) / ...
+            (likeApple * priorApple + likeNonApple * priorNonApple);
+        posteriorApple(1,count) = thisPosterior;
+        count = count + 1;
+    end;
+end;
+
+whos posteriorApple
+estAndTruth = vertcat(posteriorApple,apple_indices);
 
 
     
@@ -141,8 +167,7 @@ function like = calcGaussianProb(data,gaussMean,gaussCov)
 
 [nDim nData] = size(data);
 
-%TO DO (b) - fill in this routine
-%replace this
+
 constant = 1 / ( (2*pi)^(nDim/2) * sqrt(det(gaussCov)));
 
 % Likelihood incrementer. 1 is the product identity.
