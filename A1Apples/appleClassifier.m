@@ -72,6 +72,7 @@ end
 
 [meanApple covApple] = fitGaussianModel(RGBApple);
 [meanNonApple covNonApple] = fitGaussianModel(RGBNonApple);
+fprintf('Training complete.');
 
 % PRIORS for apple and non-apple.
 priorApple = 0.3;
@@ -108,8 +109,6 @@ for iImage = 1:size(ItestApples)
             likeApple = calcGaussianProb(thisPixelData,meanApple,covApple);
             %calculate likelihood of this data given non apple model
             likeNonApple = calcGaussianProb(thisPixelData,meanNonApple,covNonApple);
-            %TO DO (c):  calculate posterior probability from likelihoods and 
-            %priors using BAYES rule. Replace this: 
             posteriorApple(cY,cX) = (likeApple * priorApple) / ...
                 (likeApple * priorApple + likeNonApple * priorNonApple);
         end;
@@ -126,19 +125,21 @@ end
 % Read in the image and GT mask for apple-and-orange test image.
 im = double(imread(  ItestApples{2}   )) / 255;
 
+figure; set(gcf,'Color',[1 1 1]);
+    subplot(1,3,1); imagesc(im); axis off; axis image;
+
 Imask = imread(  ItestApplesMasks{1}   );
 Imask = Imask(:,:,2) > 128;  % Picked green-channel arbitrarily.
+subplot(1,3,2); imagesc(Imask); colormap(gray); axis off; axis image;
+drawnow;
 
-% Reshape GT matrix into 1xn array.
-apple_indices = reshape(Imask',1,[]);
-whos apple_indices
-
-% Size dimensions of Im.
+% Image dimensions and number of pixels. 
 [imY imX imZ] = size(im);
+npix = numel(im);
 
-posteriorApple = zeros(1,length(im));
-count = 1;
+posteriorApple = zeros(imY,imX);
 for (cY = 1:imY);    
+    break %%REMOVE WHEN COMPUTING POSTERIOR
     for (cX = 1:imX);          
         %extract this pixel data
         thisPixelData = squeeze(double(im(cY,cX,:)));
@@ -146,16 +147,46 @@ for (cY = 1:imY);
         likeApple = calcGaussianProb(thisPixelData,meanApple,covApple);
         %calculate likelihood of this data given non apple model
         likeNonApple = calcGaussianProb(thisPixelData,meanNonApple,covNonApple);
-        thisPosterior = (likeApple * priorApple) / ...
+        posteriorApple(cY,cX) = (likeApple * priorApple) / ...
             (likeApple * priorApple + likeNonApple * priorNonApple);
-        posteriorApple(1,count) = thisPosterior;
-        count = count + 1;
     end;
 end;
+%csvwrite('roc_posterior.dat', posteriorApple);
+posteriorApple = csvread('roc_posterior.dat');
+subplot(1,3,3); imagesc(posteriorApple); colormap(gray); axis off; axis image;
 
-whos posteriorApple
-estAndTruth = vertcat(posteriorApple,apple_indices);
+% Create array of discriminant thresholds to test.
+discrim_vals = linspace(0,1,100);
+% Initialise TP/TN/FP/FN rate arrays for assessing classification.
+tp = zeros(1,length(discrim_vals));
+tn = zeros(1,length(discrim_vals));
+fp = zeros(1,length(discrim_vals));
+fn = zeros(1,length(discrim_vals));
 
+n_true = nnz(Imask);
+n_neg = nnz(ones(imY,imX) - Imask);
+
+for (d = 1:length(discrim_vals))
+    % Classification results for this threshold.
+    result = posteriorApple >= discrim_vals(d);
+    
+    % Determine TP/TN/FP/FN matrices for this result.
+    tp_mat = result == 1 & Imask == 1;
+    tn_mat = result == 0 & Imask == 0;
+    fp_mat = result == 1 & Imask == 0;
+    fn_mat = result == 0 & Imask == 1;
+    
+    
+    % Count, normalise and append.
+    tp(d) = nnz(tp_mat) / n_true;
+    tn(d) = nnz(tn_mat) / n_neg;
+    fp(d) = nnz(fp_mat) / n_neg;
+    fn(d) = nnz(fn_mat) / n_true;
+end
+
+figure
+plot(fp,tp);
+drawnow
 
     
  
