@@ -20,13 +20,17 @@ IapplesMasks{1} = 'apples/Apples_by_kightp_Pat_Knight_flickr.png';
 IapplesMasks{2} = 'apples/ApplesAndPears_by_srqpix_ClydeRobinson.png';
 IapplesMasks{3} = 'apples/bobbing-for-apples.png';
 
-ItestApples = cell(3,1);
+ItestApples = cell(5,1);
 ItestApples{1} = 'testApples/Apples_by_MSR_MikeRyan_flickr.jpg';
 ItestApples{2} = 'testApples/Bbr98ad4z0A-ctgXo3gdwu8-original.jpg';
 ItestApples{3} = 'testApples/audioworm-QKUJj2wmxuI-original.jpg';
+ItestApples{4} = 'testApples/5017861149_156ba10069_z.jpg';
+ItestApples{5} = 'testApples/7974377626_0dfb28fcae_z.jpg';
 
 ItestApplesMasks = cell(1,1);
 ItestApplesMasks{1} = 'testApples/Bbr98ad4z0A-ctgXo3gdwu8-original.png';
+ItestApplesMasks{2} = 'testApples/5017861149_156ba10069_z_mask.jpg';
+ItestApplesMasks{3} = 'testApples/7974377626_0dfb28fcae_z_mask.jpg';
 
 % TRAINING PHASE
 %%%%%%%%%%%%%%%%
@@ -82,7 +86,7 @@ priorNonApple = 0.7;
 %%%%%%%%%%%%%%%%%%%
 
 for iImage = 1:size(ItestApples)
-    break %%% REMOVE FOR TESTING
+     break %%% REMOVE FOR TESTING
 
     % Load in test image.
     im = imread(ItestApples{iImage});
@@ -156,7 +160,7 @@ posteriorApple = csvread('roc_posterior.dat');
 subplot(1,3,3); imagesc(posteriorApple); colormap(gray); axis off; axis image;
 
 % Create array of discriminant thresholds to test.
-discrim_vals = linspace(0,1,100);
+discrim_vals = linspace(0,1,500);
 % Initialise TP/TN/FP/FN rate arrays for assessing classification.
 tp = zeros(1,length(discrim_vals));
 tn = zeros(1,length(discrim_vals));
@@ -185,7 +189,10 @@ for (d = 1:length(discrim_vals))
 end
 
 figure
-plot(fp,tp);
+semilogx(fp,tp);
+title('ROC curve (part D)');
+xlabel('False positive rate');
+ylabel('True positive rate');
 drawnow
 
     
