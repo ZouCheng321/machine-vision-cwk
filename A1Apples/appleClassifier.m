@@ -72,7 +72,7 @@ for iImage = 1:size(Iapples)
 
 end
 
-% FIT individual Gaussians for the binary classifications
+% Fit Gaussians with our supervised training data.
 
 [meanApple covApple] = fitGaussianModel(RGBApple);
 [meanNonApple covNonApple] = fitGaussianModel(RGBNonApple);
@@ -98,20 +98,16 @@ for iImage = 1:size(ItestApples)
     % Put into [0,1] RGB form.
     im = double(im) / 255;
 
-
-
-    %now run through the pixels in the image and classify them as being skin or
-    %non skin - we will fill in the posterior
     [imY imX imZ] = size(im);
 
     posteriorApple = zeros(imY,imX);
     for (cY = 1:imY);    
         for (cX = 1:imX);          
-            %extract this pixel data
+            % Get current pixel data.
             thisPixelData = squeeze(double(im(cY,cX,:)));
-            %calculate likelihood of this data given apple model
+            % Calculate likelihood of pixel belong to apple model.
             likeApple = calcGaussianProb(thisPixelData,meanApple,covApple);
-            %calculate likelihood of this data given non apple model
+            % Calculate likelihood of pixel belong to non-apple model.
             likeNonApple = calcGaussianProb(thisPixelData,meanNonApple,covNonApple);
             posteriorApple(cY,cX) = (likeApple * priorApple) / ...
                 (likeApple * priorApple + likeNonApple * priorNonApple);
@@ -123,16 +119,16 @@ for iImage = 1:size(ItestApples)
     % set(gca, 'clim', [0, 1]);
 end
 
-% ROC ANALYSIS
+% CLASSIFICATION ANALYSIS
 %%%%%%%%%%%%%
 
-% Read in the image and GT mask for apple-and-orange test image.
-im = double(imread(  ItestApples{2}   )) / 255;
+% Read in the chosen test image and GT mask.
+im = double(imread(  ItestApples{5}   )) / 255;
 
 figure; set(gcf,'Color',[1 1 1]);
     subplot(1,3,1); imagesc(im); axis off; axis image;
 
-Imask = imread(  ItestApplesMasks{1}   );
+Imask = imread(  ItestApplesMasks{3}   );
 Imask = Imask(:,:,2) > 128;  % Picked green-channel arbitrarily.
 subplot(1,3,2); imagesc(Imask); colormap(gray); axis off; axis image;
 drawnow;
@@ -143,7 +139,7 @@ npix = numel(im);
 
 posteriorApple = zeros(imY,imX);
 for (cY = 1:imY);    
-    break %%REMOVE WHEN COMPUTING POSTERIOR
+     break %%REMOVE WHEN COMPUTING POSTERIOR
     for (cX = 1:imX);          
         %extract this pixel data
         thisPixelData = squeeze(double(im(cY,cX,:)));
@@ -155,8 +151,11 @@ for (cY = 1:imY);
             (likeApple * priorApple + likeNonApple * priorNonApple);
     end;
 end;
-%csvwrite('roc_posterior.dat', posteriorApple);
-posteriorApple = csvread('roc_posterior.dat');
+
+% Uncomment lines if reading/writing posterior image data from/to csv.
+%%%%%%%%%%%
+%csvwrite('roc_posterior_custom2.dat', posteriorApple);
+%posteriorApple = csvread('roc_posterior.dat');
 subplot(1,3,3); imagesc(posteriorApple); colormap(gray); axis off; axis image;
 
 % Create array of discriminant thresholds to test.
@@ -167,6 +166,7 @@ tn = zeros(1,length(discrim_vals));
 fp = zeros(1,length(discrim_vals));
 fn = zeros(1,length(discrim_vals));
 
+% Get total number of apple/non-apple pixels in GT.
 n_true = nnz(Imask);
 n_neg = nnz(ones(imY,imX) - Imask);
 
@@ -180,7 +180,6 @@ for (d = 1:length(discrim_vals))
     fp_mat = result == 1 & Imask == 0;
     fn_mat = result == 0 & Imask == 1;
     
-    
     % Count, normalise and append.
     tp(d) = nnz(tp_mat) / n_true;
     tn(d) = nnz(tn_mat) / n_neg;
@@ -188,19 +187,34 @@ for (d = 1:length(discrim_vals))
     fn(d) = nnz(fn_mat) / n_true;
 end
 
+% Plot ROC curve.
 figure
 semilogx(fp,tp);
-title('ROC curve (part D)');
+title('ROC curve');
 xlabel('False positive rate');
 ylabel('True positive rate');
 drawnow
 
+% Plot TP/TN/FP/FN for different posterior discriminant values.
+figure
+plot(discrim_vals,tp,'g-');
+hold on
+plot(discrim_vals,fp,'r-');
+plot(discrim_vals,tn,'b-');
+plot(discrim_vals,fn,'y-');
+hold off
+title('Classification performance for varying posterior discriminant');
+xlabel('Posterior decision boundary');
+ylabel('Rate of quantifier');
+legend('True positives', 'False positives', 'True negatives', ...
+    'False negatives')
+drawnow
     
  
 %==========================================================================
 %==========================================================================
 
-%the goal of this routine is to evaluate a Gaussian likleihood
+% This function evaluates a Gaussian likelihood.
 function like = calcGaussianProb(data,gaussMean,gaussCov)
 
 [nDim nData] = size(data);
@@ -226,24 +240,15 @@ end
 %==========================================================================
 %==========================================================================
 
-%the goal of this routine is to return the mean and covariance of a set of
-%multidimensaional data.  It is assumed that each column of the 2D array
-%data contains a single data point.  The mean vector should be a 3x1 vector
-%with the mean RGB value.  The covariance should be a 3x3 covariance
-%matrix. See the note at the top, which explains that using mean() is ok,
-%but please compute the covariance yourself.
+% This function fits a Gaussian to a set of data.
 function [meanData covData] = fitGaussianModel(data);
 
-% Looks like this is how one assigns two variables.
 [nDim nData] = size(data);
 
-
-%calculate mean of data.  You can do this using the MATLAB command 'mean'
+% Calculate data mean.
 meanData = mean(data,2);
 
-%calculate covariance of data.  You should do this yourself to ensure you
-%understand how.  Check you have the right answer by comparing with the
-%matlab command 'cov'.
+% Calculate data covariance.
 covData = zeros(nDim,nDim);
 for m = 1:nDim
     m_data = data(m,:);
