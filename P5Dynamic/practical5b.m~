@@ -59,8 +59,7 @@ for (cY = 1:imY)
             im1_pix = im1(cY,cX);
             im2_disp_pix = im2(cY,cX+cDisp);
             pdf_val = normpdf(im1_pix, im2_disp_pix, noiseSD);
-            neg_llike = -log(pdf_val);
-            unaryCosts(cDisp,cX) = neg_llike;
+            neg_llike = -log(pdf_val)
         end;
     end;
     
