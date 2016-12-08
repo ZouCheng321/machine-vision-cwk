@@ -100,7 +100,7 @@ for (cPosition = 2:nPosition)
         [this_minimum min_index] = min(possPathCosts);
         %TO DO - store the minimum cost in the minimumCost matrix
         minimumCost(cNode,cPosition) = this_minimum + ...
-            unaryCosts(cNode,cPosition);
+            unaryCosts(cNode,cPosition
         %TO DO - store the parent index in the parents matrix
         parents(cNode,cPosition) = min_index;
     end;
@@ -130,6 +130,8 @@ for (cPosition = nPosition-1:-1:1)
 end
 
 
+%TO DO: REMOVE THIS WHEN YOU ARE DONE
+bestPath = ceil(rand(1,nPosition)*nNodesPerPosition);
 
 
 
