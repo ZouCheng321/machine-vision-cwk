@@ -85,6 +85,7 @@ U = 0;
 %for each pixel
 for(cPixelY = 1:imY)
     for (cPixelX = 1:imX)
+        % ERRATUM
         %add cost for neighbour above this pixel
         %if(cPixelY>1)
         %    U = U + getCost(label(cPixelY,cPixelX),label(cPixelY-1,cPixelX),MRFCosts);
@@ -93,6 +94,7 @@ for(cPixelY = 1:imY)
         if(cPixelY<imY)
             U = U + getCost(label(cPixelY,cPixelX),label(cPixelY+1,cPixelX),MRFCosts);
         end;
+        % ERRATUM
         %add cost for neighbour to the left
         %if(cPixelX>1)
         %    U = U + getCost(label(cPixelY,cPixelX),label(cPixelY,cPixelX-1),MRFCosts);
@@ -117,4 +119,4 @@ prMRF = randn(1);
 function cost = getCost(label1,label2,MRFCosts)
 
 %TO DO - fill in this routine - Replace this
-cost = randn(1);
+cost = MRFCosts(label1,label2);
