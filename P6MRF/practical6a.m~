@@ -142,7 +142,7 @@ while(1)
     % geater than, less than, or equal?
     %if height is ?? compared to the probability value at this point in the
     %histogram, then select
-    if (randHeight < probDist(r))
+    if (randHeight ~= probDist(r))
         break;
     end;    
 end;
