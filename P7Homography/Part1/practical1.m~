@@ -120,8 +120,8 @@ pts2Homo = [pts2Cart; ones(1,size(pts1Cart,2))];
 A = [];
 
 for cx = 1:size(pts1Cart,2)
-    cA_1 = [zeros(3,1), pts1Homo(:,cx)];
-    cA_2 = [-1 * pts1Homo(:,cx), zeros(3,1)];
+    cA_1 = [zeros(3,1), pts1Homo(:,cx)]
+    cA_2 = [-1 * pts1Homo(:,cx), zeros(3,1)]
     cA_3 = [pts2Homo(2,cx) * pts1Homo(:,cx), ...
         -pts2Homo(1,cx) * pts1Homo(:,cx)];
     cA_T = vertcat(cA_1,vertcat(cA_2,cA_3));
@@ -134,8 +134,6 @@ h = solveAXEqualsZero(A);
 %reshape h into the matrix H
 
 H = reshape(h,3,3)'
-
-H = 10 * H;
 
 %Beware - when you reshape the (9x1) vector x to the (3x3) shape of a homography, you must make
 %sure that it is reshaped with the values going first into the rows.  This
