@@ -135,7 +135,6 @@ h = solveAXEqualsZero(A);
 
 H = reshape(h,3,3)'
 
-H = 10 * H;
 
 %Beware - when you reshape the (9x1) vector x to the (3x3) shape of a homography, you must make
 %sure that it is reshaped with the values going first into the rows.  This

@@ -45,13 +45,12 @@ figure(1);
 
 for pixY = 1:size(im1,1)
     for pixX = 1:size(im1,2)
-        hPixHomo = H * [pixX, pixY, 1]';
-        hPixCart = hPixHomo / hPixHomo(3);
-        hPixX = round(hPixCart(1)); %round off
-        hPixY = round(hPixCart(2));
-        if hPixX >= 1 && hPixX <= size(im2,2) && ...
-                hPixY >= 1 && hPixY <= size(im2,1)
-            im1(pixY,pixX,:) = im2(hPixY,hPixX,:);          
+        hPix = H * [pixX, pixY, 1]';
+        hPixX = round(hPix(1)); %round off
+        hPixY = round(hPix(2));
+        if hPixX >= 1 && hPixX <= size(im2,1) && ...
+                hPixY >= 1 && hPixY <= size(im2,2)
+            im1(pixY,pixX,:) = im2(hPixY,hPixX,:);
         end
     end
 end
@@ -76,12 +75,11 @@ H = calcBestHomography(pts1b,pts3);
 
 for pixY = 1:size(im1,1)
     for pixX = 1:size(im1,2)
-        hPixHomo = H * [pixX, pixY, 1]';
-        hPixCart = hPixHomo / hPixHomo(3);
-        hPixX = round(hPixCart(1)); %round off
-        hPixY = round(hPixCart(2));
-        if hPixX >= 1 && hPixX <= size(im2,2) && ...
-                hPixY >= 1 && hPixY <= size(im2,1)
+        hPix = H * [pixX, pixY, 1]';
+        hPixX = round(hPix(1)); %round off
+        hPixY = round(hPix(2));
+        if hPixX >= 1 && hPixX <= size(im2,1) && ...
+                hPixY >= 1 && hPixY <= size(im2,2)
             im1(pixY,pixX,:) = im3(hPixY,hPixX,:);
         end
     end
