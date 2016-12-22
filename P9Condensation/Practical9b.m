@@ -46,7 +46,7 @@ numParticles = 1000;
 weight_of_samples = ones(numParticles,1);
 
 % TO DO: normalize the weights (may be trivial this time)
-weight_of_samples = 0;
+weight_of_samples = weight_of_samples / sum(weight_of_samples);
 
 % Initialize which samples from "last time" we want to propagate: all of
 % them!:
@@ -75,7 +75,7 @@ for( iTime = 1:22 )
 
     % TO DO: compute the cumulative sume of the weights. You could refer to
     % the MATLAB built-in function 'cumsum'.
-    cum_hist_of_weights = 0;
+    cum_hist_of_weights = cumsum(weight_of_samples);
 
 
     % ==============================================================
@@ -144,8 +144,8 @@ for( iTime = 1:22 )
         % TO DO: Incorporate some noise, e.g. Gaussian noise with std 10,
         % into the current location (particles_old), to give a Brownian
         % motion model.
-        noise = 0;
-        particles_new(particleNum,:) = particles_old( samples_to_propagate(particleNum),: ) * 0;
+        noise = randn * 10;
+        particles_new(particleNum,:) = particles_old( samples_to_propagate(particleNum),: ) + noise;
         particles_new(particleNum,:) = round(  particles_new(particleNum,:)  ); % Round the particles_new to simplify Likelihood evaluation.
     end;
     % TO DO: Not initially, but change the motion model above to have
@@ -209,7 +209,7 @@ for( iTime = 1:22 )
     end;
 
     % TO DO: normalize the weights 
-    weight_of_samples = 0;
+    weight_of_samples = weight_of_samples / sum(weight_of_samples);
 
 
     % Now we're done updating the state for time t. 
