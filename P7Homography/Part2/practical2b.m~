@@ -27,7 +27,7 @@ K = [640  0    320;...
 figure; set(gcf,'Color',[1 1 1]);
 imshow(im); axis off; axis image; hold on;
 plot(xImCart(1,:),xImCart(2,:),'r.','MarkerSize',10);
-hold on;
+
        
 %TO DO Use your routine to calculate TEst, the extrinsic matrix relating the
 %plane position to the camera position.
@@ -43,13 +43,7 @@ XWireFrameCart = [-50 -50  50  50 -50 -50  50  50;...
 %TO DO Draw a wire frame cube, by projecting the vertices of a 3D cube
 %through the projective camera and drawing lines betweeen the resulting 2d image
 %points
-xImWireFrameCart = projectiveCamera(K,TEst,XWireFrameCart);
-plot(xImWireFrameCart(1,:),xImWireFrameCart(2,:),'r-');
-
-N = size(XWireFrameCart,2);
-[I,J] = meshgrid(1:N);  %# Create all the combinations of indices
-index = [I(:) J(:)].';  %'# Reshape the indices
-line(xImWireFrameCart(1,index),xImWireFrameCart(2,index),'Color','k'); 
+xImWireFrameCart = xImCart(K,TEst,XWireFrameCart);
 
 %QUESTIONS TO THINK ABOUT...
 
