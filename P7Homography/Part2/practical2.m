@@ -74,8 +74,7 @@ xHom_camNorm = xHom_camFrame(1:3,:);
 xImHom = K * xHom_camNorm;
 
 %TO DO convert points back to Cartesian coordinates xImCart
-xImCart = xImHom(1:2,:);
-xImCart = [];
+xImCart = [xImHom(1,:) ./ xImHom(3,:); xImHom(2,:) ./ xImHom(3,:)];
 
 
 %==========================================================================
@@ -85,36 +84,114 @@ xImCart = [];
 %(extrinsic matrix) given points in image xImCart, points in world XCart
 %and intrinsic matrix K.
 
-function T = estimatePlanePose(xImCart,XCart,K)
+function T = estimatePlanePose(xImCart,xCart,K)
 
 %replace this
 T = [];
 
 %TO DO Convert Cartesian image points xImCart to homogeneous representation
 %xImHom
+xImHom = [xImCart; ones(1, size(xCart,2))];
 
 %TO DO Convert image co-ordinates xImHom to normalized camera coordinates
 %xCamHom
+xCamHom = inv(K) * xImHom;
 
 %TO DO Estimate homography H mapping homogeneous (x,y)
 %coordinates of positions in real world to xCamHom.  Use the routine you wrote for
 %Practical 1B.
+H = calcBestHomography(xCart,xCamHom);
 
 %TO DO Estimate first two columns of rotation matrix R from the first two
 %columns of H using the SVD
+H_twocol = H(:,1:2);
+[U,L,V] = svd(H_twocol);
+R_12 = U * [1,0;0,1;0,0] * V';
 
 %TO DO Estimate the third column of the rotation matrix by taking the cross
 %product of the first two columns
+R_3 = cross(R_12(:,1),R_12(:,2));
+R = horzcat(R_12,R_3);
 
 %TO DO Check that the determinant of the rotation matrix is positive - if
 %not then multiply last column by -1.
+if det(R) < 0
+    R(:,3) = -1 * R(:,3);
+end
 
 %TO DO Estimate the translation t by finding the appropriate scaling factor k
 %and applying it to the third colulmn of H
+k = 0;
+for m = 1:3
+    for n = 1:2
+        k = k + (1/6) * H(m,n) / R(m,n);
+    end
+end
+
+t = H(:,3) / k;
 
 %TO DO Check whether t_z is negative - if it is then multiply t by -1 and
 %the first two columns of R by -1.
+if t(3) < 0
+    t = -1 * t;
+    R(:,1:2) = -1 * R(:,1:2);
+end
 
 %assemble transformation into matrix form
 %T  = [R t;0 0 0 1];
+T = [R,t;0,0,0,1];
 
+
+%=======================================================
+
+
+
+function H = calcBestHomography(pts1Cart, pts2Homo)
+
+%should apply direct linear transform (DLT) algorithm to calculate best
+%homography that maps the points in pts1Cart to their corresonding matchin in 
+%pts2Cart
+
+%****TO DO ****: replace this
+
+
+%**** TO DO ****;
+%first turn points to homogeneous
+%then construct A matrix which should be (10 x 9) in size
+%solve Ah = 0 by calling
+%h = solveAXEqualsZero(A); (you have to write this routine too - see below)
+pts1Homo = [pts1Cart(1:2,:); ones(1,size(pts1Cart,2))];
+
+A = [];
+
+for cx = 1:size(pts1Cart,2)
+    cA_1 = [zeros(3,1), pts1Homo(:,cx)];
+    cA_2 = [-1 * pts1Homo(:,cx), zeros(3,1)];
+    cA_3 = [pts2Homo(2,cx) * pts1Homo(:,cx), ...
+        -pts2Homo(1,cx) * pts1Homo(:,cx)];
+    cA_T = vertcat(cA_1,vertcat(cA_2,cA_3));
+    cA = cA_T';
+    A = vertcat(A,cA);
+end
+
+h = solveAXEqualsZero(A);
+
+%reshape h into the matrix H
+
+H = reshape(h,3,3)';
+
+
+%Beware - when you reshape the (9x1) vector x to the (3x3) shape of a homography, you must make
+%sure that it is reshaped with the values going first into the rows.  This
+%is not the way that the matlab command reshape works - it goes columns
+%first.  In order to resolve this, you can reshape and then take the
+%transpose
+
+
+%==========================================================================
+function x = solveAXEqualsZero(A);
+
+%****TO DO **** Write this routine
+
+[U,L,V] = svd(A);
+x = V(:,9);
