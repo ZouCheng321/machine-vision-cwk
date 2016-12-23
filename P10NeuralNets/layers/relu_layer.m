@@ -17,7 +17,8 @@ classdef relu_layer
     methods
         function [y, obj] = forward(obj, x)
             % TODO 1.1: Write the forward propagation step for a ReLU_layer
-            y = 0;
+            logic = x > 0;
+            y = logic .* x;
             
             % Save input/output to object properties
             obj.x = x;
@@ -29,7 +30,9 @@ classdef relu_layer
             % is just an empty array
             
             % TODO 1.2: Compute the gradients wrt the input
-            dydx = 0;
+            logic = obj.x > 0;
+            
+            dydx = logic;
             dLdx = dLdy.*dydx;
             
             % Store gradients to object

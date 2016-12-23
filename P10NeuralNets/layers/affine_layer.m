@@ -27,14 +27,15 @@ classdef affine_layer
             % prevent the variance of the forward- and back-prop passes
             % from exploding or vanishing to zero.
             obj.W = [sqrt(1/(n_in))*randn(n_in, n_out); b];
+            
         end
         function [y, obj] = forward(obj, x)
             % Build the forward propagation step for an affine layer.
             
             % TODO 2.1: pad the input x with ones in the last (rightmost) dimension 
             % and compute affine transformation
-            x = 0;
-            y = 0;
+            x = horzcat(x,ones(size(x,1),1));
+            y = x * obj.W;
             
             % Store input/output to object
             obj.x = x;
