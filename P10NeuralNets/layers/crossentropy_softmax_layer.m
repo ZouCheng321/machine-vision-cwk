@@ -22,6 +22,8 @@ classdef crossentropy_softmax_layer
             % Compute the forward-propagated activations of this layer. You
             % can do this by computing the softmax followed by the
             % crossentropy.
+            % -jim NOTE: 'y' is more like L in the notes.
+            % whereas 'obj.softmax_output' is more like y.
             
             % subtract max(x) for stability (note there is a MATLAB
             % version, which is defined differently!)
@@ -29,7 +31,7 @@ classdef crossentropy_softmax_layer
             obj.softmax_output = softmax(obj, xx);
             
             % TODO 3.2: Compute the crossentropy
-            y = 0;
+            y = (-1) * sum(target .* log(obj.softmax_output));
             
             % Store the input, output and target to object
             obj.x = x;
@@ -42,15 +44,15 @@ classdef crossentropy_softmax_layer
             % empty. Also note that the input gradient dLdy is a scalar.
             
             % TODO 3.3: Compute the gradients wrt the input. (Cheatsheet)
-            dydx = 0;
-            dLdx = dLdy.*dydx;
+            dLdx = dLdy * (obj.softmax_output - obj.target);
             
             % Store gradients to object
             obj.dLdW = [];
         end
         function y = softmax(obj, xx)
             % TODO 3.1: Compute softmax output
-            y = 0;
+            softmax = softmax_layer();
+            y = softmax.forward(xx);
         end
     end
 end

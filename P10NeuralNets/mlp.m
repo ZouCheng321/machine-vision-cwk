@@ -177,7 +177,7 @@ classdef mlp
     for j=1:length(net)
         if ~isempty(net{j}.dLdW)
             % TODO 4: update the weights of the multilayer perceptron
-            net{j}.W = net{j}.W;
+            net{j}.W = net{j}.W - learning_rate * net{j}.dldW;
         end
     end
     end
