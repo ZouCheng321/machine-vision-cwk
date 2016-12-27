@@ -26,7 +26,8 @@ classdef affine_layer
             % as He initialisation (He et al., 2015), and is used to
             % prevent the variance of the forward- and back-prop passes
             % from exploding or vanishing to zero.
-            obj.W = [sqrt(1/(n_in))*randn(n_in, n_out); b];
+            W = [sqrt(1/(n_in))*randn(n_in, n_out); b];
+            obj.W = W;
             
         end
         function [y, obj] = forward(obj, x)
@@ -47,7 +48,7 @@ classdef affine_layer
             % TODO 2.2: Implement the back-propagation step for the affine
             % layer. Remember to compute the gradient wrt the input 
             % (without bias), not the augmented input.
-            dydx = 0;
+            dydx = obj.W(1:3,:)';
             dLdx = dLdy*dydx;
             
             % Store gradients to object
