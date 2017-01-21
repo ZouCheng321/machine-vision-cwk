@@ -24,14 +24,14 @@ LoadVideoFrames
 %load lr;
 %load ul;
 %load ur;
-load( templateMetaFileName );
+load( 'll' );
 
 
 numParticles = 50;
 weight_of_samples = ones(numParticles,1);
 
 % TO DO: normalize the weights (may be trivial this time)
-weight_of_samples = 0;
+weight_of_samples = weight_of_samples / sum(weight_of_samples);
 
 % Initialize which samples from "last time" we want to propagate: all of
 % them!:
@@ -68,7 +68,7 @@ for( iTime = 1:numFrames )
     
     % TO DO: compute the cumulative sume of the weights. You could refer to
     % the MATLAB buitin function 'cumsum'.
-    cum_hist_of_weights = 0;
+    cum_hist_of_weights = cumsum(weight_of_samples);
 
 
     % ==============================================================
@@ -137,8 +137,8 @@ for( iTime = 1:numFrames )
         % TO DO: Incorporate some noise, e.g. Gaussian noise with std 10,
         % into the current location (particles_old), to give a Brownian
         % motion model.
-        noise = 0;
-        particles_new(particleNum,:) = particles_old( samples_to_propagate(particleNum),: ) * 0;
+        noise = [randn * 10, randn * 10];
+        particles_new(particleNum,:) = particles_old( samples_to_propagate(particleNum),: ) + noise;
         particles_new(particleNum,:) = round(  particles_new(particleNum,:)  ); % Round the particles_new to simplify Likelihood evaluation.
     end;
     
@@ -187,11 +187,11 @@ for( iTime = 1:numFrames )
     end;
 
     % TO DO: normalize the weights 
-    weight_of_samples = 0;
+    weight_of_samples = weight_of_samples / sum(weight_of_samples);
 
     % TO DO: Compute the coordinate of the "best" (i.e. MAP) location by
     % computing the weighted average of all the particles:
-    weightedAve = [0 0];
+    weightedAve = sum(weight_of_samples .* particles_new, 1);
     
     middleOfTrackedPatch = weightedAve + patchOffset;
     r(iTime,:) = middleOfTrackedPatch; % Return the MAP of middle position 
