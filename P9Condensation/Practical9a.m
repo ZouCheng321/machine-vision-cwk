@@ -126,7 +126,7 @@ for (particleNum = 1:numParticles)
     % TO DO: Incorporate some noise, e.g. Gaussian noise with std 10,
     % into the current location (particles_old), to give a Brownian
     % motion model.
-    noise = randn * 10;
+    noise = [randn * 10, randn * 10];
     particles_new(particleNum,:) = particles_old( samples_to_propagate(particleNum),: ) + noise;
 end;
 
